@@ -1,0 +1,36 @@
+.logo {
+  float: left;
+  width: 250px;
+  margin-left: -50px;
+  height: 75px;
+  background-color: #001529;
+  display: flex;
+  justify-content: center;
+  -webkit-transform: all 0.2s ease 0s;
+  -moz-transform: all 0.2s ease 0s;
+  -ms-transform: all 0.2s ease 0s;
+  -o-transform: all 0.2s ease 0s;
+}
+.logo span {
+  display: block;
+  height: 47px;
+  width: 177px;
+  background-color: #1a2d3f;
+}
+.collapsed-close .logo {
+  width: 80px;
+}
+.collapsed-close .head-warp {
+  margin-left: 65px;
+}
+.head-warp {
+  margin-left: 220px;
+  -webkit-transform: all 0.2s ease 0s;
+  -moz-transform: all 0.2s ease 0s;
+  -ms-transform: all 0.2s ease 0s;
+  -o-transform: all 0.2s ease 0s;
+}
+.collapsed-icon {
+  font-size: 24px;
+  cursor: pointer;
+}

@@ -3,7 +3,7 @@ import service from '../utils/request';
 export function Login(data){
   return service.request({
     url: "/login/",
-    method: "get",
+    method: "post",
     data
     // params: data //get request
   })
@@ -16,3 +16,12 @@ export function Code(data){
     data
   })
 }
+
+export function Register(data){
+  return service.request({
+    url: "/register/",
+    method: "post",
+    data
+  })
+}
+
