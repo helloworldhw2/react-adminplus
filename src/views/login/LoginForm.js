@@ -6,7 +6,8 @@ import { Form,Input,Button,Row,Col,message } from 'antd';
 import { UserOutlined,LockOutlined,CheckOutlined  } from '@ant-design/icons';
 // import { validate_password,validate_email } from '../../utils/validate'
 import { Login } from '../../api/account'
-import { setToken } from '../../utils/session'
+// import { setToken } from '../../utils/session'
+import { setToken, setUsername } from '../../utils/cookies'
 import Verifier from '../../components/Verifier'
 class LoginForm extends Component {
   state = {
@@ -24,7 +25,9 @@ class LoginForm extends Component {
     Login(requestData).then(response => {
       this.setState({login_button_loading: false})
       if(response.data.resCode === 0){
-        setToken(response.data.data.token)
+        const info = response.data.data
+        setToken(info.token)
+        setUsername(info.username)
         this.props.history.push('/index')
         return 
       }

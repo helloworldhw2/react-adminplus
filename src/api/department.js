@@ -7,3 +7,10 @@ export function AddDepartment(data){
     data
   })
 }
+export function GetList(data){
+  return service.request({
+    url: "/department/list/",
+    method: "post",
+    data
+  })
+}
