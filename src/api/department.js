@@ -14,3 +14,10 @@ export function GetList(data){
     data
   })
 }
+export function Delete(data){
+  return service.request({
+    url: "/department/delete/",
+    method: "post",
+    data
+  })
+}

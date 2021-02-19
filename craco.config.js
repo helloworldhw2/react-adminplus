@@ -3,6 +3,8 @@ const cracoLessResourcesLoader = require('craco-plugin-style-resources-loader');
 const path = require('path');
 const CracoLessPlugin  = require('craco-less');
 const CracoAntDesignPlugin = require('craco-antd')
+const CracoAlias = require("craco-alias")
+
 module.exports = {
   plugins: [
     {
@@ -35,6 +37,18 @@ module.exports = {
               4. if u use stylus processor，please type stylus string
           */
           styleType: 'less'
+      }
+    },
+    {
+      plugin: CracoAlias,
+      options: {
+        source: "options",
+        baseUrl: "./",
+        aliases: {
+          "@": "./src",
+          "@api": "./src/api",
+
+        }
       }
     }
 

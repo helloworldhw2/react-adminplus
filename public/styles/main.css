@@ -334,3 +334,9 @@ template {
 body {
   background-color: #00142c !important;
 }
+.inline-button button + button {
+  margin-left: 10px;
+}
+.table-wrap {
+  padding-top: 30px;
+}
