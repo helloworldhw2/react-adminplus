@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Form, Input, InputNumber, Radio, Button, message } from 'antd'
-import { AddDepartment } from '../../api/department'
+import { AddDepartment, Detailed, EditDepartment } from '@api/department'
 
 export default class Add extends Component {
   state = {
@@ -29,6 +29,11 @@ export default class Add extends Component {
       return
     } 
     this.setState({loading: true})
+    const id = this.props.location.state.id
+    this.props.location.state.id ? this.onHanderEdit(value) : this.onHanderAdd(value)
+  }
+
+  onHanderAdd(value){
     AddDepartment(value).then(
       response =>{
         message.info(response.data.message);
@@ -40,6 +45,36 @@ export default class Add extends Component {
       }
     )
   }
+
+  onHanderEdit(value){
+    value.id = this.props.location.state.id
+    EditDepartment(value).then(
+      response =>{
+        message.info(response.data.message);
+        this.setState({loading: false})
+      },
+      error => {
+        this.setState({loading: false})
+      })
+  }
+
+  componentDidMount() {
+    this.getDetailed()
+  }
+
+  getDetailed = () => {
+    if( !this.props.location.state){
+      return
+    }
+    Detailed({id: this.props.location.state.id}).then(
+      response =>{
+        this.form.setFieldsValue(response.data.data)
+      },
+      error => {
+      }
+    )
+  }
+  
   render() {
     const {formLayout,initiaValues} = this.state
     return (                           

@@ -1,9 +1,11 @@
 import React, { Component,Fragment } from 'react'
-import { Form, Button, Input, Table, Switch, message } from 'antd'
-import { GetList, Delete } from '@api/department'
+import { Link } from 'react-router-dom'
+import { Form, Button, Input, Table, Switch, message, Modal } from 'antd'
+import { GetList, Delete, Status } from '@api/department'
 
 export default class Department extends Component {
   state = {
+    id: '4442',
     columns: [
       { title: '部门名称', dataIndex: 'name', key: 'name' },
       { 
@@ -11,7 +13,7 @@ export default class Department extends Component {
         dataIndex: 'status', 
         key: 'status' ,
         render: (text, rowData) => {
-          return <Switch checkedChildren="启用" unCheckedChildren="禁用" defaultChecked={rowData.status} />
+          return <Switch isloading={rowData.id == this.state.id} onClick={()=>{this.onHandlerSwitch(rowData)}} checkedChildren="启用" unCheckedChildren="禁用" defaultChecked={rowData.status} />
         }
       },
       { title: '人员数量', dataIndex: 'number', key: 'number' },
@@ -22,21 +24,37 @@ export default class Department extends Component {
         render: (text, rowData) => {
           return (
             <div className='inline-button'>
-              <Button type='primary' size='small'>编辑</Button>
-              <Button onClick={() => {this.handleDelete(rowData.id)}} type='danger' size='small'>删除</Button>
+              {/* <Button onClick={() => {this.onhandlerEdit(rowData.id)}} type='primary' size='small'>编辑 */}
+              <Button type='primary' size='small'>
+                <Link to={{ pathname: '/index/department/add', state: {id: rowData.id}}}>编辑</Link>
+              </Button>
+              <Button onClick={() => {this.onhandlerDelete(rowData.id)}} type='danger' size='small'>删除</Button>
             </div>
           )
         }
       }
     ],
     data: [],
-    name: ''
+    name: '',
+    visible: false,
+    
+    confirmLoading: false
 
   }
 
   componentDidMount() {
     this.loadData()
   }
+
+  onHandlerSwitch(data){
+   
+    Status({id: data.id,status: data.status ? false : true}).then(
+      response => {
+        message.info(response.data.message)
+        this.loadData()
+      }
+    )
+  } 
   
   loadData = () =>{
     const requestData = {
@@ -56,17 +74,16 @@ export default class Department extends Component {
     })
   }
 
-  handleDelete = (id) =>{
+  onhandlerDelete(id){
     if(!id) {
       return
     }
-    Delete({id}).then(
-      response => {
-        message.info(response.data.message)
-        this.loadData()
-      }
-    )
+    this.setState({visible: true, id})
   }
+
+  onhandlerEdit(id){
+    // console.log(id)
+  } 
   
   onFinish = (value) => {
     this.setState({name: value.name})
@@ -77,6 +94,19 @@ export default class Department extends Component {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     // this.setState({ selectedRowKeys });
   };
+
+  modalThen = () => {
+    this.setState({confirmLoading: true})
+    Delete({id: this.state.id}).then(
+      response => {
+        message.info(response.data.message)
+        this.setState({visible: false, confirmLoading: false})
+        this.loadData()
+      }
+    )
+  }
+
+ 
 
   render() {
     const { columns,data } = this.state
@@ -97,6 +127,17 @@ export default class Department extends Component {
         <div className='table-wrap'>
           <Table rowSelection={rowSelection} rowKey='id' columns={columns} dataSource={data} bordered> </Table>
         </div>
+        <Modal
+          title="提示"
+          visible={this.state.visible}
+          onOk={this.modalThen}
+          onCancel={ () => {this.setState({visible: false})} }
+          confirmLoading={this.state.confirmLoading}
+          okText="确认"
+          cancelText="取消"
+        >
+          <p className='text-center'>确认删除此信息？<strong>删除后将无法回复。</strong></p>
+        </Modal>
       </Fragment>
     )
   }
