@@ -346,3 +346,6 @@ body {
 .text-center strong {
   color: #ff0000;
 }
+.pull-right {
+  float: right;
+}

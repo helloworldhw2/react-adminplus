@@ -29,7 +29,6 @@ export default class Add extends Component {
       return
     } 
     this.setState({loading: true})
-    const id = this.props.location.state.id
     this.props.location.state.id ? this.onHanderEdit(value) : this.onHanderAdd(value)
   }
 

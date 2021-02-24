@@ -1,118 +1,123 @@
 import React, { Component,Fragment } from 'react'
 import { Link } from 'react-router-dom'
-import { Form, Button, Input, Table, Switch, message, Modal } from 'antd'
-import { GetList, Delete, Status } from '@api/department'
+import { Form, Button, Input, Switch, message, Modal } from 'antd'
+import { Delete, Status } from '@api/department'
+import TableComponent from '@/components/tableData'
+import requestUrl from '@api/requestUrl'
 
 export default class Department extends Component {
   state = {
-    id: '4442',
-    columns: [
-      { title: '部门名称', dataIndex: 'name', key: 'name' },
-      { 
-        title: '禁启用', 
-        dataIndex: 'status', 
-        key: 'status' ,
-        render: (text, rowData) => {
-          return <Switch isloading={rowData.id == this.state.id} onClick={()=>{this.onHandlerSwitch(rowData)}} checkedChildren="启用" unCheckedChildren="禁用" defaultChecked={rowData.status} />
-        }
+    id: '',
+    did: '',
+    tableData: {
+      checkBox: true,
+      requestData:{
+        data: {
+          pageNumber: 1,
+          pageSize: 10,
+          keyWord: '',
+        },
+        url: requestUrl.departmentList,
       },
-      { title: '人员数量', dataIndex: 'number', key: 'number' },
-      { 
-        title: '操作', 
-        dataIndex: 'moment', 
-        key: 'moment',
-        render: (text, rowData) => {
-          return (
-            <div className='inline-button'>
-              {/* <Button onClick={() => {this.onhandlerEdit(rowData.id)}} type='primary' size='small'>编辑 */}
-              <Button type='primary' size='small'>
-                <Link to={{ pathname: '/index/department/add', state: {id: rowData.id}}}>编辑</Link>
-              </Button>
-              <Button onClick={() => {this.onhandlerDelete(rowData.id)}} type='danger' size='small'>删除</Button>
-            </div>
-          )
+      columns: [
+        { title: '部门名称', dataIndex: 'name', key: 'name' },
+        { 
+          title: '禁启用', 
+          dataIndex: 'status', 
+          key: 'status' ,
+          render: (text, rowData) => {
+            return <Switch loading={rowData.id === this.state.did} onClick={()=>{this.onHandlerSwitch(rowData)}} checkedChildren="启用" unCheckedChildren="禁用" defaultChecked={rowData.status} />
+          }
+        },
+        { title: '人员数量', dataIndex: 'number', key: 'number' },
+        { 
+          title: '操作', 
+          dataIndex: 'moment', 
+          key: 'moment',
+          render: (text, rowData) => {
+            return (
+              <div className='inline-button'>
+                {/* <Button onClick={() => {this.onhandlerEdit(rowData.id)}} type='primary' size='small'>编辑 */}
+                <Button type='primary' size='small'>
+                  <Link to={{ pathname: '/index/department/add', state: {id: rowData.id}}}>编辑</Link>
+                </Button>
+                <Button onClick={() => {this.onhandlerDelete(rowData.id)}} type='danger' size='small'>删除</Button>
+              </div>
+            )
+          }
         }
-      }
-    ],
+      ],
+    },
+    
     data: [],
     name: '',
     visible: false,
+    loadingTable: false,
+    confirmLoading: false,
+    selectedRowKeys: [],
     
-    confirmLoading: false
+  
 
   }
 
-  componentDidMount() {
-    this.loadData()
-  }
+  
 
   onHandlerSwitch(data){
-   
+    this.setState({did: data.id})
     Status({id: data.id,status: data.status ? false : true}).then(
       response => {
+        this.setState({did: ''})
         message.info(response.data.message)
         this.loadData()
       }
-    )
+    ).catch(error =>{
+      this.setState({did: ''})
+    })
   } 
   
-  loadData = () =>{
-    const requestData = {
-      pageNumber: 1,
-      pageSize: 10
-    }
-    if(this.state.name){
-      requestData.name = this.state.name
-    }
-    GetList(requestData).then(response => {
-      const data = response.data.data.data
-      if(data){
-        this.setState({
-          data
-        })
-      }
-    })
-  }
+  
 
   onhandlerDelete(id){
     if(!id) {
-      return
+      if(this.state.selectedRowKeys.length === 0){
+        return
+      }
+      id = this.state.selectedRowKeys.join()
     }
     this.setState({visible: true, id})
   }
 
-  onhandlerEdit(id){
-    // console.log(id)
-  } 
   
   onFinish = (value) => {
+    if(this.state.loadingTable){
+      return
+    }
     this.setState({name: value.name})
     this.loadData()
   }
 
-  onSelectChange = selectedRowKeys => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
-    // this.setState({ selectedRowKeys });
-  };
-
+  
   modalThen = () => {
     this.setState({confirmLoading: true})
     Delete({id: this.state.id}).then(
       response => {
         message.info(response.data.message)
-        this.setState({visible: false, confirmLoading: false})
-        this.loadData()
+        this.setState({visible: false, confirmLoading: false, selectedRowKeys: []})
       }
     )
   }
 
+  onSelectChange = selectedRowKeys => {
+    if(!selectedRowKeys) {
+      return
+    }
+    this.setState({selectedRowKeys})
+  };
+
+  
  
 
   render() {
-    const { columns,data } = this.state
-    const rowSelection = {
-      onChange: this.onSelectChange
-    }
 
     return (
       <Fragment>
@@ -125,7 +130,8 @@ export default class Department extends Component {
           </Form.Item>
         </Form>
         <div className='table-wrap'>
-          <Table rowSelection={rowSelection} rowKey='id' columns={columns} dataSource={data} bordered> </Table>
+          <TableComponent tableData={this.state.tableData}/>
+          <Button type='primary' onClick={() => {this.onhandlerDelete()}}>批量删除</Button>
         </div>
         <Modal
           title="提示"
